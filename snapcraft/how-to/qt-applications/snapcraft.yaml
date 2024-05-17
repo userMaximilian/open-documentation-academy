@@ -1,0 +1,50 @@
+name: kcalc
+version: '23.08.5'
+grade: stable
+base: core22
+confinement: strict
+adopt-info: kcalc
+
+apps:
+  kcalc:
+    common-id: org.kde.kcalc.desktop
+    command: usr/bin/kcalc
+    extensions: [kde-neon]
+    plugs:
+      - home
+      - audio-playback
+    environment:
+      XCURSOR_SIZE: 24
+      XCURSOR_THEME: "Yaru"
+
+slots:
+  session-dbus-interface:
+    interface: dbus
+    name: org.kde.kcalc.desktop
+    bus: session
+
+parts:
+  doctools-fix:
+    after: [kde-neon/sdk]
+    plugin: nil
+    override-build: |
+      ln -s /snap/kf5-5-113-qt-5-15-11-core22-sdk/current/usr/share/xml/ /usr/share/xml
+  kcalc:
+    after: [doctools-fix]
+    parse-info: [usr/share/metainfo/org.kde.kcalc.appdata.xml]
+    plugin: cmake
+    build-packages:
+      - libmpfr-dev # 4.1.0
+      - libgmp-dev # 2:6.2.1
+    stage-packages:
+      - libmpfr6 # 4.1.0
+      - libgmp10 # 2:6.2.1
+    source: https://invent.kde.org/utilities/kcalc/-/archive/v23.08.5/kcalc-v23.08.5.tar.gz
+    cmake-parameters:
+      - "-DKDE_INSTALL_USE_QT_SYS_PATHS=ON"
+      - "-DCMAKE_INSTALL_PREFIX=/usr"
+      - "-DCMAKE_BUILD_TYPE=Release"
+      - "-DENABLE_TESTING=OFF"
+      - "-DBUILD_TESTING=OFF"
+      - "-DKDE_SKIP_TEST_SETTINGS=ON"
+      - "-DINSTALL_ICONS=ON"
