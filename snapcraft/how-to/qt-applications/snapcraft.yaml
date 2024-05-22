@@ -1,9 +1,10 @@
 name: kcalc
-version: '23.08.5'
 grade: stable
 base: core22
 confinement: strict
 adopt-info: kcalc
+architectures: [amd64]
+license: GPL-2.0-or-later
 
 apps:
   kcalc:
@@ -11,11 +12,13 @@ apps:
     command: usr/bin/kcalc
     extensions: [kde-neon]
     plugs:
-      - home
       - audio-playback
-    environment:
-      XCURSOR_SIZE: 24
-      XCURSOR_THEME: "Yaru"
+
+layout:
+  /usr/share/sounds/Oxygen-Sys-App-Message.ogg:
+    symlink: $SNAP/kf5/usr/share/sounds/freedesktop/stereo/dialog-information.oga
+  /usr/lib/x86_64-linux-gnu/libcanberra-0.30/libcanberra-pulse.so:
+    symlink: $SNAP/usr/lib/x86_64-linux-gnu/libcanberra-0.30/libcanberra-pulse.so
 
 slots:
   session-dbus-interface:
@@ -25,6 +28,7 @@ slots:
 
 parts:
   kcalc:
+    after: [kde-neon/sdk]
     parse-info: [usr/share/metainfo/org.kde.kcalc.appdata.xml]
     plugin: cmake
     build-packages:
@@ -36,13 +40,34 @@ parts:
     source: https://invent.kde.org/utilities/kcalc/-/archive/v23.08.5/kcalc-v23.08.5.tar.gz
     cmake-parameters:
       - "-DCMAKE_BUILD_TYPE=Release"
-      - "-DBUILD_TESTING=OFF"
-      - "-DKDE_SKIP_TEST_SETTINGS=ON"
-      - "-DKDE_INSTALL_USE_QT_SYS_PATHS=ON"
       - "-DCMAKE_INSTALL_PREFIX=/usr"
+      - "-DKDE_INSTALL_USE_QT_SYS_PATHS=ON"
+      - "-DKDE_SKIP_TEST_SETTINGS=ON"
       - "-DINSTALL_ICONS=ON"
+    override-pull: |
+      craftctl default
+      patch -s <snap/local/dontusefullpathinsymlink.patch
     override-build: |
-      if [ ! -e /usr/share/xml ]
-      then ln -s /snap/kf5-*-core22-sdk/current/usr/share/xml/ /usr/share/xml
+      if [ ! -e /usr/share/xml ]; then
+        ln -s /snap/kf5-*-qt-*-core22-sdk/current/usr/share/xml/ /usr/share/xml
       fi
       craftctl default
+    override-stage: |
+      craftctl default
+      if [ ! -e libcanberra-pulse_*.deb ]; then
+        apt-get download libcanberra-pulse
+      fi
+    override-prime: |
+      craftctl default
+      if [ ! -e usr/lib/x86_64-linux-gnu/libcanberra-*/libcanberra-pulse.so ]; then
+        dpkg -x $CRAFT_STAGE/libcanberra-pulse_*.deb .
+      fi
+      FILE=snap/command-chain/desktop-launch
+      if [ -e $CRAFT_PRIME/$FILE ]; then rm $CRAFT_PRIME/$FILE; fi
+      CMD='busctl call --user org.freedesktop.portal.Desktop /org/freedesktop/portal/desktop '\
+      'org.freedesktop.portal.Settings Read ss org.gnome.desktop.interface'
+      head -n -6 $CRAFT_STAGE/$FILE >$CRAFT_PRIME/$FILE
+      echo -e "export XCURSOR_THEME=\$($CMD cursor-theme | cut -d \\\" -f2)\n"\
+              "export XCURSOR_SIZE=\$($CMD cursor-size | cut -d' ' -f4)\n" >>$CRAFT_PRIME/$FILE
+      tail -n 6 $CRAFT_STAGE/$FILE >>$CRAFT_PRIME/$FILE
+      chmod +x $CRAFT_PRIME/$FILE
