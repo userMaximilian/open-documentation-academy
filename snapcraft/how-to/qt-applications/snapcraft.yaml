@@ -1,8 +1,8 @@
 name: kcalc
 adopt-info: kcalc
+grade: stable
 license: GPL-2.0-or-later
 base: core22
-grade: stable
 confinement: strict
 
 apps:
@@ -28,14 +28,6 @@ layout:
     symlink: $SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libcanberra-0.30/libcanberra-pulse.so
 
 parts:
-  libcanberra:
-    plugin: nil
-    override-pull: |
-      if [ ! -e libcanberra-pulse_*.deb ]; then apt-get download libcanberra-pulse:$CRAFT_ARCH_BUILD_FOR; fi
-    override-build: |
-      if [ ! -e $CRAFT_PART_INSTALL/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libcanberra-*/libcanberra-pulse.so>
-        dpkg -x $CRAFT_PART_SRC/libcanberra-pulse_*.deb $CRAFT_PART_INSTALL
-      fi
   kcalc:
     after: [kde-neon/sdk]
     parse-info: [usr/share/metainfo/org.kde.kcalc.appdata.xml]
@@ -68,3 +60,12 @@ parts:
       "export XCURSOR_THEME=\$($CMD cursor-theme | cut -d \\\\\" -f2)\n"\
       "export XCURSOR_SIZE=\$($CMD cursor-size | cut -d' ' -f4)\n" $CRAFT_STAGE/$FILE > $CRAFT_PRIME/$FILE
       chmod +x $CRAFT_PRIME/$FILE
+
+  sound-support:
+    plugin: nil
+    override-pull: |
+      if [ ! -e libcanberra-pulse_*.deb ]; then apt-get download libcanberra-pulse:$CRAFT_ARCH_BUILD_FOR; fi
+    override-build: |
+      if [ ! -e $CRAFT_PART_INSTALL/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libcanberra-*/libcanberra-pulse.so>
+        dpkg -x $CRAFT_PART_SRC/libcanberra-pulse_*.deb $CRAFT_PART_INSTALL
+      fi
