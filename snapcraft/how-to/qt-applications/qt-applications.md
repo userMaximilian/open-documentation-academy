@@ -4,20 +4,20 @@ Snapcraft bundles necessary libraries required by the application, and can confi
 
 Here are some snap advantages that will benefit many Qt applications:
 
-* **Snaps are easy to discover and install**
+* **Snaps are easy to discover and install**\
   Millions of users can browse and install snaps graphically in the Ubuntu Software Center, the Snap Store or from the command-line.
-* **Snaps install and run the same across Linux**
-  They bundle the latest version of Qt5 and KDE Frameworks, along with all of your app's dependencies, be they binaries or system libraries.
-* **You control the release schedule**
+* **Snaps install and run the same across Linux**\
+  They link to recent, stable versions of Qt 5 and KDE Frameworks 5, and bundle the rest of your app's dependencies, be they binaries or system libraries.
+* **You control the release schedule**\
   You decide when a new version of your application is released without having to wait for distributions to catch up.
-* **Snaps automatically update to the latest version**
+* **Snaps automatically update to the latest version**\
   Four times a day, users' systems will check for new versions and upgrade in the background.
-* **Upgrades are safe**
+* **Upgrades are safe**\
   If your app fails to upgrade, users automatically roll back to the previous revision.
 
 ### Build a snap in 20 minutes
 
-Typically this guide will take around 20 minutes and will result in a working Qt5 application in a snap. Once complete, you'll understand how to package Qt5 applications as snaps and deliver them to millions of Linux users. After making the snap available in the store, you'll get access to installation metrics and tools to directly manage the delivery of updates to Linux users.
+Typically this guide will take around 20 minutes and will result in a working Qt 5 application in a snap. Once complete, you'll understand how to package Qt 5 applications as snaps and deliver them to millions of Linux users. After making the snap available in the store, you'll get access to installation metrics and tools to directly manage the delivery of updates to Linux users.
 
 > ⓘ For a brief overview of the snap creation process, including how to install *snapcraft* and how it's used, see [Snapcraft overview](/t/snapcraft-overview/8940). For a more comprehensive breakdown of the steps involved, take a look at [Creating a snap](/t/creating-a-snap/6799).
 
