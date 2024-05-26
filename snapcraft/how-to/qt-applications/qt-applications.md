@@ -17,9 +17,7 @@ Here are some snap advantages that will benefit many Qt 5 applications:
 
 ### Build a snap in 20 minutes
 
-Typically this guide will take around 20 minutes to follow, and will result in a working Qt 5 and KDE Frameworks application in a snap.
-
-Once complete, you'll understand how to package Qt 5 applications as snaps and deliver them to millions of Linux users. After making the snap available in the store, you'll get access to installation metrics and tools to directly manage the delivery of updates to Linux users.
+Typically this guide will take around 20 minutes to follow, and will result in a working Qt 5 and KDE Frameworks application in a snap. Once complete, you'll understand how to package Qt 5 applications as snaps and deliver them to millions of Linux users. After making the snap available in the store, you'll get access to installation metrics and tools to directly manage the delivery of updates to Linux users.
 
 > ⓘ For a brief overview of the snap creation process, including how to install *snapcraft* and how it's used, see [Snapcraft overview](/t/8940). For a more comprehensive breakdown of the steps involved, take a look at [Creating a snap](/t/6799).
 
@@ -27,7 +25,7 @@ Once complete, you'll understand how to package Qt 5 applications as snaps and d
 
 For this how-to, we are going to create a snap of KDE's calculator application [KCalc](https://apps.kde.org/kcalc/). We're focusing on version 23.08.5, released in February 2024, as this was the final release to support Qt 5.
 
-Snaps are defined in a single YAML file named *snapcraft.yaml*. Our version of *snapcraft.yaml* is below. We'll go through this file line by line.
+Snaps are defined in a single YAML file named *snapcraft.yaml*. Our version of *snapcraft.yaml* is below. We'll break this file down.
 
 [details=Our snapcraft.yaml for KCalc]
 ```yaml
@@ -66,11 +64,11 @@ parts:
     parse-info: [usr/share/metainfo/org.kde.kcalc.appdata.xml]
     plugin: cmake
     build-packages:
-      - libgmp-dev
       - libmpfr-dev
+      - libgmp-dev
     stage-packages:
-      - libgmp10
       - libmpfr6
+      - libgmp10
     source: https://invent.kde.org/utilities/kcalc/-/archive/v23.08.5/kcalc-v23.08.5.tar.gz
     cmake-parameters:
       - "-DCMAKE_BUILD_TYPE=Release"
@@ -133,7 +131,7 @@ The `base` keyword defines a special kind of snap that provides a run-time envir
 base: core22
 ```
 
-We specified the base as [`core22`](https://snapcraft.io/core22), as it is the only base snap currently supported by the `kde-neon` extension that we will use later on.
+We specified the base as [`core22`](https://snapcraft.io/core22), as it is the only base snap currently supported by the `kde-neon` extension that we use later on.
 
 #### Security model
 
@@ -142,10 +140,7 @@ The `confinement` level defines [how your snap is isolated](/t/6233) from the us
 ```yaml
 confinement: strict
 ```
-It's worth setting the `confinement` to `devmode` when you start building a new snap, as this mode will help you to work out which [interfaces](t/35928) your snap needs.
-
-Once your snap is working in `devmode`, and you have defined all the interfaces that you think your snap needs, you should then change the `confinement` to `strict` mode and check that the snap still works. Snaps with a `confinement` level of `strict` can be released in the general release channels of the Snap Store.
-
+It's worth setting the `confinement` to `devmode` when you start building a new snap, as this mode will help you to work out which [interfaces](t/35928) your snap needs. Once everything is working, and you have defined all the interfaces that your snap needs, you should then change the `confinement` to `strict` mode and check that the snap still works. Snaps with a `confinement` level of `devmode` can't be released in the general release channels of the Snap Store - but those with a confinemnt of `strict` can.
 
 #### Apps
 
@@ -234,11 +229,11 @@ parts:
     parse-info: [usr/share/metainfo/org.kde.kcalc.appdata.xml]
     plugin: cmake
     build-packages:
-      - libgmp-dev
       - libmpfr-dev
+      - libgmp-dev
     stage-packages:
-      - libgmp10
       - libmpfr6
+      - libgmp10
     source: https://invent.kde.org/utilities/kcalc/-/archive/v23.08.5/kcalc-v23.08.5.tar.gz
     cmake-parameters:
       - "-DCMAKE_BUILD_TYPE=Release"
