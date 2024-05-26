@@ -1,10 +1,9 @@
 name: kcalc
-grade: stable
-base: core22
-confinement: strict
 adopt-info: kcalc
-architectures: [amd64]
 license: GPL-2.0-or-later
+base: core22
+grade: stable
+confinement: strict
 
 apps:
   kcalc:
@@ -14,19 +13,29 @@ apps:
     plugs:
       - audio-playback
 
-layout:
-  /usr/share/sounds/Oxygen-Sys-App-Message.ogg:
-    symlink: $SNAP/kf5/usr/share/sounds/freedesktop/stereo/dialog-information.oga
-  /usr/lib/x86_64-linux-gnu/libcanberra-0.30/libcanberra-pulse.so:
-    symlink: $SNAP/usr/lib/x86_64-linux-gnu/libcanberra-0.30/libcanberra-pulse.so
-
 slots:
   session-dbus-interface:
     interface: dbus
     name: org.kde.kcalc.desktop
     bus: session
 
+layout:
+  /usr/share/applications/org.kde.kcalc.desktop:
+    symlink: $SNAP/usr/share/applications/org.kde.kcalc.desktop
+  /usr/share/sounds/Oxygen-Sys-App-Message.ogg:
+    symlink: $SNAP/kf5/usr/share/sounds/freedesktop/stereo/dialog-information.oga
+  /usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libcanberra-0.30/libcanberra-pulse.so:
+    symlink: $SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libcanberra-0.30/libcanberra-pulse.so
+
 parts:
+  libcanberra:
+    plugin: nil
+    override-pull: |
+      if [ ! -e libcanberra-pulse_*.deb ]; then apt-get download libcanberra-pulse:$CRAFT_ARCH_BUILD_FOR; fi
+    override-build: |
+      if [ ! -e $CRAFT_PART_INSTALL/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libcanberra-*/libcanberra-pulse.so>
+        dpkg -x $CRAFT_PART_SRC/libcanberra-pulse_*.deb $CRAFT_PART_INSTALL
+      fi
   kcalc:
     after: [kde-neon/sdk]
     parse-info: [usr/share/metainfo/org.kde.kcalc.appdata.xml]
@@ -44,30 +53,18 @@ parts:
       - "-DKDE_INSTALL_USE_QT_SYS_PATHS=ON"
       - "-DKDE_SKIP_TEST_SETTINGS=ON"
       - "-DINSTALL_ICONS=ON"
-    override-pull: |
-      craftctl default
-      patch -s <snap/local/dontusefullpathinsymlink.patch
     override-build: |
       if [ ! -e /usr/share/xml ]; then
-        ln -s /snap/kf5-*-qt-*-core22-sdk/current/usr/share/xml/ /usr/share/xml
+        ln -s /snap/kf5-*-core22-sdk/current/usr/share/xml/ /usr/share/xml
       fi
       craftctl default
-    override-stage: |
-      craftctl default
-      if [ ! -e libcanberra-pulse_*.deb ]; then
-        apt-get download libcanberra-pulse
-      fi
     override-prime: |
       craftctl default
-      if [ ! -e usr/lib/x86_64-linux-gnu/libcanberra-*/libcanberra-pulse.so ]; then
-        dpkg -x $CRAFT_STAGE/libcanberra-pulse_*.deb .
-      fi
       FILE=snap/command-chain/desktop-launch
       if [ -e $CRAFT_PRIME/$FILE ]; then rm $CRAFT_PRIME/$FILE; fi
       CMD='busctl call --user org.freedesktop.portal.Desktop /org/freedesktop/portal/desktop '\
       'org.freedesktop.portal.Settings Read ss org.gnome.desktop.interface'
-      head -n -6 $CRAFT_STAGE/$FILE >$CRAFT_PRIME/$FILE
-      echo -e "export XCURSOR_THEME=\$($CMD cursor-theme | cut -d \\\" -f2)\n"\
-              "export XCURSOR_SIZE=\$($CMD cursor-size | cut -d' ' -f4)\n" >>$CRAFT_PRIME/$FILE
-      tail -n 6 $CRAFT_STAGE/$FILE >>$CRAFT_PRIME/$FILE
+      sed /wait_for_async_execs/i\
+      "export XCURSOR_THEME=\$($CMD cursor-theme | cut -d \\\\\" -f2)\n"\
+      "export XCURSOR_SIZE=\$($CMD cursor-size | cut -d' ' -f4)\n" $CRAFT_STAGE/$FILE > $CRAFT_PRIME/$FILE
       chmod +x $CRAFT_PRIME/$FILE
