@@ -1,0 +1,71 @@
+name: kcalc-example
+adopt-info: kcalc
+grade: stable
+
+license: GPL-2.0-or-later
+website: https://github.com/snapcraft-docs/kcalc-example/
+contact: https://github.com/snapcraft-docs/kcalc-example/
+issues: https://github.com/snapcraft-docs/kcalc-example/issues/
+source-code: https://github.com/snapcraft-docs/kcalc-example/
+
+base: core22
+confinement: strict
+
+apps:
+  kcalc-example:
+    common-id: org.kde.kcalc.desktop
+    command: usr/bin/kcalc
+    extensions:
+      - kde-neon
+    plugs:
+      - audio-playback
+
+parts:
+  kcalc:
+    source: https://invent.kde.org/utilities/kcalc/-/archive/v23.08.5/kcalc-v23.08.5.tar.gz
+    parse-info:
+      - usr/share/metainfo/org.kde.kcalc.appdata.xml
+    plugin: cmake
+    build-packages:
+      - libmpfr-dev
+      - libgmp-dev
+    stage-packages:
+      - libmpfr6
+      - libgmp10
+    cmake-parameters:
+      - "-DCMAKE_BUILD_TYPE=Release"
+      - "-DCMAKE_INSTALL_PREFIX=/usr"
+      - "-DKDE_INSTALL_USE_QT_SYS_PATHS=ON"
+      - "-DKDE_SKIP_TEST_SETTINGS=ON"
+      - "-DINSTALL_ICONS=ON"
+
+  sound-support:
+    plugin: nil
+    override-pull: |
+      if [ ! -e libcanberra-pulse_*.deb ]; then
+        apt-get download libcanberra-pulse:$CRAFT_ARCH_BUILD_FOR;
+      fi
+    override-build: |
+      if [ ! -e $CRAFT_PART_INSTALL/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libcanberra-*/libcanberra-pulse.so ]; then
+        dpkg -x $CRAFT_PART_SRC/libcanberra-pulse_*.deb $CRAFT_PART_INSTALL
+      fi
+
+  cursor-fix:
+    after: [kde-neon/sdk]
+    plugin: nil
+    override-prime: |
+      craftctl default
+      FILE=snap/command-chain/desktop-launch
+      if [ -e $CRAFT_PRIME/$FILE ]; then rm $CRAFT_PRIME/$FILE; fi
+      CMD='busctl call --user org.freedesktop.portal.Desktop /org/freedesktop/portal/desktop '\
+      'org.freedesktop.portal.Settings Read ss org.gnome.desktop.interface'
+      sed /wait_for_async_execs/i\
+      "export XCURSOR_THEME=\$($CMD cursor-theme | cut -d \\\\\" -f2)\n"\
+      "export XCURSOR_SIZE=\$($CMD cursor-size | cut -d' ' -f4)\n" $CRAFT_STAGE/$FILE > $CRAFT_PRIME/$FILE
+      chmod +x $CRAFT_PRIME/$FILE
+
+layout:
+  /usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libcanberra-0.30/libcanberra-pulse.so:
+    symlink: $SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libcanberra-0.30/libcanberra-pulse.so
+  /usr/share/sounds/Oxygen-Sys-App-Message.ogg:
+    symlink: $SNAP/kf5/usr/share/sounds/freedesktop/stereo/dialog-information.oga
