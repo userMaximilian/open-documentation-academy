@@ -17,13 +17,13 @@ parts:
     source: https://invent.kde.org/utilities/kcalc/-/archive/v23.08.5/kcalc-v23.08.5.tar.gz
     parse-info:
       - usr/share/metainfo/org.kde.kcalc.appdata.xml
-    plugin: cmake
     build-packages:
       - libmpfr-dev
       - libgmp-dev
     stage-packages:
       - libmpfr6
       - libgmp10
+    plugin: cmake
     cmake-parameters:
       - "-DCMAKE_BUILD_TYPE=Release"
       - "-DCMAKE_INSTALL_PREFIX=/usr"

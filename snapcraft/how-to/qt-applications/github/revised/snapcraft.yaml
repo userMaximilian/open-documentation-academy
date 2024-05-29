@@ -1,6 +1,6 @@
 name: kcalc-example
 adopt-info: kcalc
-grade: stable
+grade: devel
 
 license: GPL-2.0-or-later
 website: https://github.com/snapcraft-docs/kcalc-example/
@@ -25,19 +25,20 @@ parts:
     source: https://invent.kde.org/utilities/kcalc/-/archive/v23.08.5/kcalc-v23.08.5.tar.gz
     parse-info:
       - usr/share/metainfo/org.kde.kcalc.appdata.xml
-    plugin: cmake
     build-packages:
       - libmpfr-dev
       - libgmp-dev
     stage-packages:
       - libmpfr6
       - libgmp10
+    plugin: cmake
     cmake-parameters:
       - "-DCMAKE_BUILD_TYPE=Release"
       - "-DCMAKE_INSTALL_PREFIX=/usr"
       - "-DKDE_INSTALL_USE_QT_SYS_PATHS=ON"
       - "-DKDE_SKIP_TEST_SETTINGS=ON"
       - "-DINSTALL_ICONS=ON"
+      - "-DKF5DocTools_FOUND=OFF"
 
   sound-support:
     plugin: nil
@@ -50,7 +51,7 @@ parts:
         dpkg -x $CRAFT_PART_SRC/libcanberra-pulse_*.deb $CRAFT_PART_INSTALL
       fi
 
-  cursor-fix:
+  get-cursor-from-dbus:
     after: [kde-neon/sdk]
     plugin: nil
     override-prime: |
