@@ -93,7 +93,7 @@ The `base` keyword defines a special kind of snap that provides a run-time envir
 base: core22
 ```
 
-We need to set the `base` to [`core22`](https://snapcraft.io/core22). This is the only `base` currently supported by Snapcraft's Qt 5 and KDE Frameworks extension (known as `kde-neon`) that we're going to add to our snap later on.
+[`core22`](https://snapcraft.io/core22) is a standard base for snap building and is built on [Ubuntu 22.04 LTS](https://releases.ubuntu.com/22.04/).
 
 #### Security model
 
