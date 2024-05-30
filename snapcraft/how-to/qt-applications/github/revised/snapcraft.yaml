@@ -51,19 +51,19 @@ parts:
         dpkg -x $CRAFT_PART_SRC/libcanberra-pulse_*.deb $CRAFT_PART_INSTALL
       fi
 
-  get-cursor-from-dbus:
-    after: [kde-neon/sdk]
-    plugin: nil
+  set-cursor-variables:
+    after:
+      - kde-neon/sdk
+    source: https://github.com/snapcraft-docs/kcalc-example.git
+    source-type: git
+    source-depth: 1
+    source-subdir: patch
+    plugin: dump
     override-prime: |
-      craftctl default
       FILE=snap/command-chain/desktop-launch
-      if [ -e $CRAFT_PRIME/$FILE ]; then rm $CRAFT_PRIME/$FILE; fi
-      CMD='busctl call --user org.freedesktop.portal.Desktop /org/freedesktop/portal/desktop '\
-      'org.freedesktop.portal.Settings Read ss org.gnome.desktop.interface'
-      sed /wait_for_async_execs/i\
-      "export XCURSOR_THEME=\$($CMD cursor-theme | cut -d \\\\\" -f2)\n"\
-      "export XCURSOR_SIZE=\$($CMD cursor-size | cut -d' ' -f4)\n" $CRAFT_STAGE/$FILE > $CRAFT_PRIME/$FILE
-      chmod +x $CRAFT_PRIME/$FILE
+      if [ -e "$CRAFT_PRIME/$FILE" ]; then rm "$CRAFT_PRIME/$FILE"; fi
+      cp "$CRAFT_STAGE/$FILE" "$CRAFT_PRIME/$FILE"
+      patch -p0 < "$CRAFT_STAGE"/set-cursor-variables.patch
 
 layout:
   /usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libcanberra-0.30/libcanberra-pulse.so:
