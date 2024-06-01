@@ -5,18 +5,24 @@ The `kde-neon` extension helps with the creation of snaps that use [Qt 5](https:
 Snapcraft extensions enable snap developers to easily incorporate a set of common requirements into a snap. See [Snapcraft extensions](/t/snapcraft-extensions/13486) for further details.
 [/note]
 
-The extension is currently available for `core18`, `core20` and `core22`. The current versions of Qt 5 and the KDE Frameworks for each base are:
+The extension is currently available for `core22`, `core20` and `core18`. New snaps should be built using `core22`, as the `core20` and `core18` extensions are no longer being actively developed (and as `core18` itself [has been deprecated](/t/base-snaps/11198#heading--deprecated)).
 
-| Base | Versions | Base snap | SDK snap | Released
+The current versions of Qt 5 and the KDE Frameworks for each base are:
+
+| Base | Versions | Platform snap | Build snap | Released
 |-|---|---|---|---|
 | core22 | Qt 5.15.11 and KF 5.113 | [kf5-5-113-qt-5-15-11-core22](https://snapcraft.io/kf5-5-113-qt-5-15-11-core22) | [kf5-5-113-qt-5-15-11-core22-sdk](https://snapcraft.io/kf5-5-113-qt-5-15-11-core22-sdk) | Snapcraft 8.1.0 |
 | core20 | Qt 5.15.7 and KF 5.99 | [kde-frameworks-5-99-qt-5-15-7-core20](https://snapcraft.io/kde-frameworks-5-99-qt-5-15-7-core20) |  [kde-frameworks-5-99-qt-5-15-7-core20-sdk](https://snapcraft.io/kde-frameworks-5-99-qt-5-15-7-core20-sdk) | Snapcraft 7.3 |
-| core18 | Qt 5.15.x and KF 5.67 | [kde-frameworks-5-core18](https://snapcraft.io/kde-frameworks-5-core18) | [kde-frameworks-5-core18-sdk](https://snapcraft.io/kde-frameworks-5-core18-sdk) | 14 February 2023 |
+| core18 | Qt 5.14.1 and KF 5.67 | [kde-frameworks-5-core18](https://snapcraft.io/kde-frameworks-5-core18) | [kde-frameworks-5-core18-sdk](https://snapcraft.io/kde-frameworks-5-core18-sdk) | 14 February 2023 |
 
-[note]
+[note type="caution"]
+
+The extension is designed for C++-based applications. It does not provide the bindings needed for *Qt for Python* (PySide2) applications.
+
+In addition, the extension does not cover include every optional Qt library: for example, it does not include Qt3D, QtCharts, QtDataVisualization or QtGamepad.
+[/note]
 
 The remainder of this document will focus on the current version of the `core22` extension.
-[/note]
 
 ## How to use it
 

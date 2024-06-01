@@ -305,7 +305,7 @@ We can resolve this issue for users of the GNOME desktop environment on Wayland 
     source: https://github.com/snapcraft-docs/kcalc-example.git
     source-type: git
     source-depth: 1
-    source-subdir: patch
+    source-subdir: patches
     plugin: dump
     override-prime: |
       FILE=snap/command-chain/desktop-launch
@@ -406,7 +406,7 @@ parts:
     source: https://github.com/snapcraft-docs/kcalc-example.git
     source-type: git
     source-depth: 1
-    source-subdir: patch
+    source-subdir: patches
     plugin: dump
     override-prime: |
       FILE=snap/command-chain/desktop-launch
