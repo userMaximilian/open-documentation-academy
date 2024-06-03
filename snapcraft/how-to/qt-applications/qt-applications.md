@@ -23,7 +23,7 @@ In this how-to, we will create a snap of KDE's calculator application [KCalc](ht
 
 Snaps are defined in a single YAML file named *snapcraft.yaml* in the root folder of your project. We'll start by preparing a short *snapcraft.yaml* file that builds a (mostly) working copy of KCalc. We'll then look at a few ways in which we can improve our *snapcraft.yaml* and how we can submit our snap to the Snap Store.
 
-This guide will typically take around 20 minutes to follow. Once complete, you'll understand how to package Qt 5 applications as snaps and deliver them to millions of Linux users. After making the snap available in the store, you'll get access to installation metrics and tools to directly manage the delivery of updates to Linux users.
+This guide will typically take around 20-30 minutes to follow. Once complete, you'll understand how to package Qt 5 applications as snaps and deliver them to millions of Linux users. After making the snap available in the store, you'll get access to installation metrics and tools to directly manage the delivery of updates to Linux users.
 
 ## Getting started
 
@@ -87,7 +87,7 @@ The `grade` is optional. It defines the quality of the snap. We're setting the `
 
 #### Base
 
-The `base` keyword defines a special kind of snap that provides a run-time environment with a minimal set of libraries that are common to most applications. Bases are transparent to users, but they need to be considered, and specified, when building a snap. See [Base snaps](/t/base-snaps/11198) for more information.
+The `base` keyword defines a special kind of snap that provides a run time environment with a minimal set of libraries that are common to most applications. Bases are transparent to users, but they need to be considered, and specified, when building a snap. See [Base snaps](/t/base-snaps/11198) for more information.
 
 ```yaml
 base: core22
@@ -128,7 +128,7 @@ The `common-id` links our app to an AppStream *component*, from which Snapcraft 
 
 The `command` is the path to the app's main executable file within the snap. 
 
-The [`kde-neon`](/t/the-kde-neon-extension/13752) extension ensures that the relevant Qt/KDE library snaps are available at build time and run time. The extension also:
+The [`kde-neon` extension](/t/the-kde-neon-extension/13752) ensures that the relevant Qt/KDE Frameworks content and library snaps are available at build time and run time respectively. The extension also:
 - adds `plugs` to the `desktop`, `desktop-legacy`, `opengl`, `wayland` and `x11` interfaces; and
 - configures the run time environment of the app, ensuring that all relevant desktop functionality is correctly initialised.
 
@@ -158,7 +158,7 @@ parts:
       - "-DKF5DocTools_FOUND=OFF"
 ```
 
-`source` tells Snapcraft where to find the source code for this part. Whilst we're linking to a tarball file hosted on a public website, Snapcraft is also able to use source code from a version control system or a local directory. 
+`source` tells Snapcraft where to find the source code for this part. Whilst we're linking to a tarball file hosted on a public website, Snapcraft is also able to use source code from a version control system or a local directory.
 
 > ⓘ We're specifically using version 23.08.5 of KCalc released in February 2024 for this how-to. At the time of writing (May 2024) this is the last release to support Qt 5.
 
@@ -224,18 +224,18 @@ $ snapcraft clean
 
 By default, when you make a change to *snapcraft.yaml*, Snapcraft only builds the parts that have changed. Cleaning a build, however, forces your snap to be rebuilt in a clean environment and will take longer.
 
-### Improving our snap
+### Improving the snap
 
 You might notice a few peculiarities when testing our snap, for example:
-- sounds might not play properly (or at all) 
+- error sounds might not play properly (or at all) 
 - the application might use a different set of cursors to the rest of your applications
 
 Let's try to improve the user experience by addressing them:
 
-[details=Audio support]
-KCalc will attempt to play a sound when an error occurs (for example, if a user tries to insert multiple decimal places in a number). However, our version of KCalc isn't able to play these sounds.
+[details=Error sounds]
+KCalc attempts to play a sound when an error occurs (for example, if a user tries to add multiple decimal places to a number). However, our version of KCalc isn't able to play these sounds.
 
-To start with, we need to update *snapcraft.yaml* to grant our snap access to the `audio-playback` interface, as the `kde-neon` extension doesn't do this for us. We just need to add a `plugs` entry with the value `audio-playback` to the `kcalc-example` app definition. The result looks like this:
+To start with, we need to update *snapcraft.yaml* to grant our snap access to the `audio-playback` interface, as this isn't one of the interfaces covered by the `kde-neon` extension. To do this, we just need to add a `plugs` entry with the value `audio-playback` to the `kcalc-example` app definition. The result looks like this:
 
 ```yaml
 apps:
@@ -248,13 +248,11 @@ apps:
       - audio-playback
 ```
 
-KCalc also relies upon the audio library *libcanberra-pulse* to play sounds.
+KCalc plays error sounds using KDE's *KNotification* Framework, which in turn relies upon the audio library *libcanberra*. Whilst our application has access to *libcanberra*, it doesn't have access to the *libcanberra-pulse* plugin, so we'll bundle this with our snap.
 
-> ⓘ KCalc doesn't link to this library directly, so Snapcraft isn't able to warn us that it is missing during the build process. Instead, we used the debugging tool *strace* to find out about the dependency at run time. See [Run a snap under strace](/t/debug-snaps/18420) for more information.
+The easiest way to bundle a library with a snap is to add it to the `stage-packages` section of the main build part. Snapcraft will then fetch that library, as well as any other libraries or data that it depends on, at the start of the build.
 
-The easiest way to bundle a library with a snap is to add it to the `stage-packages` section of the main build part. Snapcraft will then fetch that library, _as well as any other libraries or data that it depends on_, at the start of the build.
-
-This behaviour is usually very helpful, but in our case it leads to unwanted duplication, as the dependencies of *libcanberra-pulse* are already bundled in the run-time provided by the `kde-neon` extension. To avoid this, and keep the size of our snap as small as possible, we can use `override-pull` and `override-build` to make Snapcraft download and install just the library we need.
+This behaviour is usually very helpful, but in our case it leads to unwanted duplication, as the dependencies of *libcanberra-pulse* are already bundled in the platform snap provided by the `kde-neon` extension. To avoid this, and keep the size of our snap as small as possible, we can use `override-pull` and `override-build` to make Snapcraft download and install just the library we need.
 
 We're going to do this by adding a new part to *snapcraft.yaml* named `sound-support` as follows:
 
@@ -277,7 +275,7 @@ This part does two things:
 
 As we specified the `plugin` as `nil`, Snapcraft will only perform the actions that we specify in `override-pull` and `override-build`.
 
-Finally, KCalc expects to find the library file (*libcanberra-pulse.so*) and the sound effect (*Oxygen-Sys-App-Message.ogg*) in particular locations. We can add a `layout` section to our Snapcraft file to links between the *expected* locations and the *actual* locations within our snap, as below. See [Snap layouts](/t/snap-layouts/7207) for more information. 
+Finally, KCalc expects to find the library file (*libcanberra-pulse.so*) and the sound effect (*Oxygen-Sys-App-Message.ogg*) in particular locations, which differ from where the files are actually stored in our snap. We can add a `layout` section to our Snapcraft file to link between the *expected* and *actual* locations as below. See [Snap layouts](/t/snap-layouts/7207) for more information. 
 
 ```yaml
 layout:
@@ -287,7 +285,7 @@ layout:
     symlink: $SNAP/kf5/usr/share/sounds/freedesktop/stereo/dialog-information.oga
 ```
 
-If you make these changes to *snapcraft.yaml*, and then re-build and reinstall the snap, you should now hear a sound effect when an error occurs.
+If you make these changes to *snapcraft.yaml*, and then re-build and reinstall the snap, you should now hear a sound when an error occurs.
 [/details]
 
 [details=Cursor themes]
@@ -295,7 +293,7 @@ If you run our `kcalc-example` snap in a [*Wayland*-based](https://wayland.freed
 
 This is because Qt 5 applications on Wayland expect to learn about the cursor theme and size from two environment variables: `XCURSOR_THEME` and `XCURSOR_SIZE`. However, not all desktop environments set these values, meaning that applications like KCalc aren't able to determine which cursor theme or size to use, so they fall back to default settings instead.
 
-We can resolve this issue for users of the GNOME desktop environment on Wayland by inserting a few lines into the `kde-neon` *launcher script* that sets up the run-time environment when our snap is launched. We'll do this with a new part named `set-cursor-variables`:
+We can try to resolve this issue for users of the GNOME desktop environment on Wayland by inserting a few lines into the `kde-neon` *launcher script* that sets up the run time environment when our snap is launched. We'll do this with a new part named `set-cursor-variables`:
 
 ```yaml
   set-cursor-variables:
@@ -303,7 +301,6 @@ We can resolve this issue for users of the GNOME desktop environment on Wayland 
       - kde-neon/sdk
     source: https://github.com/snapcraft-docs/kcalc-example.git
     source-type: git
-    source-depth: 1
     source-subdir: patches
     plugin: dump
     override-prime: |
@@ -315,7 +312,13 @@ We can resolve this issue for users of the GNOME desktop environment on Wayland 
 
 We use the `after` attribute to ensure that our modifications are only applied after the *launcher script* is generated by the (hidden) `kde-neon/sdk` build step. The various `source` lines tell Snapcraft how to fetch a community-contributed patch file named [`set-cursor-variables.patch`](https://github.com/snapcraft-docs/kcalc-example/blob/patch/set-cursor-variables.patch) from our GitHub project repository. The `override-prime` step then updates the `desktop-launch` script using the amendments listed in our patch file.
 
-> ⓘThe patch only makes minimal changes to our snap. It isn't intended to be a comprehensive solution that works with every desktop environment or Wayland compositor. If you have any comments or suggestions, please let us know in the [Snapcraft forum post](https://forum.snapcraft.com/t/qt5-and-kde-frameworks-applications/13753) for this document.
+[note]
+
+The patch only makes minimal changes to our snap. It isn't intended to be a comprehensive solution that works with every desktop environment or with every icon theme. As our snap cannot access the host system's cursor store, it relies on the user's chosen theme being contained in the `gtk-common-themes` content snap or in the Qt/KDE Frameworks platform snap. If the user uses a different theme, then the snap will fall back to a default cursor.
+
+If you have any comments or suggestions, please let us know in the [Snapcraft forum post](https://forum.snapcraft.com/t/qt5-and-kde-frameworks-applications/13753) for this document.
+[/note]
+
 [/details]
 
 There are a few other changes that we can make before we publish our snap:
