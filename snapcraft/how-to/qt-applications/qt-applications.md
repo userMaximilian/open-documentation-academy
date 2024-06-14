@@ -1,27 +1,25 @@
 ## Why are snaps good for Qt 5 and KDE Frameworks applications?
 
-Here are some of the benefits of packaging and distributing Qt 5 and KDE Frameworks applications using snaps:
+Here are just some of the many reasons why you should consider packaging and distributing your Qt 5 and KDE Frameworks applications as snaps:
 
 * **Snaps are easy to discover and install**\
-  Millions of users can browse and install snaps graphically in the Ubuntu App Centre, the Snap Store or from the command-line.
+  Millions of users can find and install your snaps on desktop stores like Ubuntu's App Centre, on the online Snap Store or from the command line.
 * **Snaps install and run the same across Linux**\
-  They bundle the exact version of whatever is required, along with all of your app's dependencies, be they binaries or system libraries.
+  You can rely on carefully curated extensions to provide the main libraries that your applications depend on, and then bundle the exact versions of any additional dependencies within the snap.
 * **Snaps run in a sandbox by default**\
-  The vast majority of snaps run in an isolated environment and only have access to user files, networking and other processes via defined interfaces, which increases security, system stability and user trust.
+  Most snaps run in an isolated environment and only have access to resources like user files and networking via defined interfaces, enhancing security, system stability and user trust.
 * **You control the release schedule**\
   You decide when a new version of your application is released without having to wait for distributions to catch up.
 * **Snaps automatically update to the latest version**\
-  Four times a day, users' systems will check for new versions and upgrade in the background.
+  Your users' systems will check for new versions and upgrade in the background four times a day.
 * **Upgrades are safe**\
   If your snap fails to upgrade, users automatically roll back to the previous revision.
 
-The process of creating a snap for a Qt 5 / KDE Frameworks application builds on standard tools like `cmake` and `make`, enabling you to re-use the application's existing build system during the snap creation process.
+The process of creating a snap for a Qt 5 or KDE Frameworks application builds on standard tools like `cmake` and `make`, enabling you to re-use the application's existing build system when creating your snap.
 
 ### Build a snap in 20-30 minutes
 
-In this how-to, we will create a snap of KDE's calculator application [KCalc](https://apps.kde.org/kcalc/).
-
-This guide should take around 20-30 minutes to follow. Once complete, you'll understand how to package Qt 5 applications as snaps and deliver them to millions of Linux users. After making the snap available in the Snap Store, you'll get access to installation metrics and tools to directly manage the delivery of updates to Linux users.
+This guide should take around 20-30 minutes to follow. Once complete, you'll understand how to package Qt 5 and KDE Frameworks applications as snaps and deliver them to millions of Linux users. After making your snap available in the Snap Store, you'll get access to installation metrics and tools to directly manage the delivery of updates to Linux users.
 
 > ⓘ  For a brief overview of the snap creation process, including how to install Snapcraft and how it's used, see [Snapcraft overview](/t/snapcraft-overview/8940). For a more comprehensive breakdown of the steps involved, take a look at [Creating a snap](/t/creating-a-snap/6799).
 
@@ -29,9 +27,9 @@ This guide should take around 20-30 minutes to follow. Once complete, you'll und
 
 Snaps are defined in a single YAML file named *snapcraft.yaml* saved in the root folder of your project.
 
-We're going to start by creating a short *snapcraft.yaml* file that builds a (mostly) working copy of KCalc. We will then improve our *snapcraft.yaml* and look at how we can submit our snap to the Snap Store.
+We're going to start by creating a short *snapcraft.yaml* file that builds a snap of KDE's calculator application [KCalc](https://apps.kde.org/kcalc/). We will then improve our *snapcraft.yaml*, before exploring how we can submit own snap to the Snap Store.
 
-The full version of our *snapcraft.yaml* file can be found below. We'll explain the contents of this file in the following sections.
+The full version of our initial *snapcraft.yaml* file can be found below. We'll explain the contents of this file in the following sections of this guide.
 
 [details=Click here to expand/collapse our initial *snapcraft.yaml*]
 ```yaml
@@ -81,7 +79,7 @@ adopt-info: kcalc
 grade: devel
 ```
 
-Every snap needs a `name`. Valid names consist of up to 40 lower-case ASCII letters, numbers and hyphens. Names must contain at least one letter, and they cannot start or end with a hyphen. If you want to publish your snap, you'll need specify a `name` that hasn't already been taken in the Snap Store.
+Every snap needs a `name`. Valid names consist of up to 40 lower-case ASCII letters, numbers and hyphens. Names must contain at least one letter, and they cannot start or end with a hyphen. If you want to publish your snap, you'll need to specify a `name` that hasn't already been taken in the Snap Store.
 
 You should then:
 1. include a short `summary` of what your snap does, a longer `description` and the `version` number of your snap; or
@@ -174,7 +172,7 @@ We set `parse-info` to the location of the AppStream metadata file in our snap. 
 In addition to Qt 5 and the KDE Frameworks, KCalc depends on two libraries: MPFR and GMP. We use:
 - `build-packages` to ensure that the *development* versions of these libraries are during the build process, and
 - `stage-packages` to bundle the *run time* versions within the snap.
-The packages will be obtained from the Ubuntu *apt* repositories applicable to your chosen `base` (so, as we're using `core22`, the packages will need to be available in *Ubuntu 22.04 LTS*). We don't need to specify the Qt or KDE libraries here, as the `kde-neon` extension handles this for us.
+The packages will be obtained from the Ubuntu *apt* repositories applicable to your chosen `base` (so, as we're using `core22`, the packages will need to be available in *Ubuntu 22.04 LTS*). We don't need to list the Qt or KDE libraries in this section, as the `kde-neon` extension handles this for us.
 
 [The `cmake` `plugin`](/t/the-cmake-plugin/8621) tells Snapcraft that the KCalc source code should be built using the *CMake build system*.
 
@@ -202,7 +200,7 @@ Created snap package kcalc-example_23.08.5_amd64.snap
 
 > ⓘ We have only tested this example on an *amd64* system, but the `kde-neon` extension is also available for *arm64*. If you can successfully build the snap on an *arm64* system, please let us know in our [Discourse thread](https://forum.snapcraft.com/t/qt5-and-kde-frameworks-applications/13753).
 
-The resulting snap can be installed locally. You need to specify the `--devmode` flag here as we're installing an unconfined application:
+The resulting snap can be installed locally. You need to specify the `--devmode` option as we're installing an unconfined application:
 
 ```bash
 $ sudo snap install kcalc-example_*.snap --devmode
@@ -450,7 +448,7 @@ $ snapcraft login
 
 ### Reserve a name for your snap
 
-You can publish your own version of a snap, provided you do so under a name you have rights to. (For example, we'll need to avoid conflict and confusion with the official [`kcalc` snap published by KDE](https://snapcraft.io/kcalc).)
+You can publish your own version of a snap, provided you do so under a name that's appropriate. For example, if we wanted to publish our KCalc snap, we would need to pick a name that doesn't conflict or cause any confusion with the official [`kcalc` snap published by KDE](https://snapcraft.io/kcalc).
 
 You can register a name on [dashboard.snapcraft.io](https://dashboard.snapcraft.io/register-snap/) or by running the following command:
 
