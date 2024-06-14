@@ -1,13 +1,13 @@
 ## Why are snaps good for Qt 5 and KDE Frameworks applications?
 
-Snapcraft bundles necessary libraries required by the application, and can configure the environment to ensure that the application runs correctly under confinement for end user peace of mind. Developers can ensure their application is delivered pre-packaged with libraries which will not be replaced or superseded by a distribution vendor.
-
-Here are some advantages of snaps that will benefit many Qt 5 and KDE Frameworks applications:
+Here are some of the benefits of packaging and distributing Qt 5 and KDE Frameworks applications using snaps:
 
 * **Snaps are easy to discover and install**\
-  Millions of users can browse and install snaps graphically in the Ubuntu Software Center, the Snap Store or from the command-line.
+  Millions of users can browse and install snaps graphically in the Ubuntu App Centre, the Snap Store or from the command-line.
 * **Snaps install and run the same across Linux**\
   They bundle the exact version of whatever is required, along with all of your app's dependencies, be they binaries or system libraries.
+* **Snaps run in a sandbox by default**\
+  The vast majority of snaps run in an isolated environment and only have access to user files, networking and other processes via defined interfaces, which increases security, system stability and user trust.
 * **You control the release schedule**\
   You decide when a new version of your application is released without having to wait for distributions to catch up.
 * **Snaps automatically update to the latest version**\
@@ -29,7 +29,7 @@ This guide should take around 20-30 minutes to follow. Once complete, you'll und
 
 Snaps are defined in a single YAML file named *snapcraft.yaml* saved in the root folder of your project.
 
-We're going to start by creating a short *snapcraft.yaml* file that builds a (mostly) working copy of KCalc. We will then improve our *snapcraft.yaml* and cover how we can submit our snap to the Snap Store.
+We're going to start by creating a short *snapcraft.yaml* file that builds a (mostly) working copy of KCalc. We will then improve our *snapcraft.yaml* and look at how we can submit our snap to the Snap Store.
 
 The full version of our *snapcraft.yaml* file can be found below. We'll explain the contents of this file in the following sections.
 
@@ -114,11 +114,11 @@ Once your snap is ready, you'll need to change the `confimenent` to `strict` and
 
 #### Apps
 
-*Apps* are the commands and services that you want your users to be able to run or use.
+*Apps* are the commands and services that you want your users to be run or use.
 
 For the purposes of KCalc, we only need to define one app, which we're naming `kcalc-example`. However, it's worth noting that a single snap can contain multiple apps.
 
-As `kcalc-example` is both the name of our *app* and the name of our *snap*, users will be able to launch the app by simply running the command `kcalc-example`.
+As `kcalc-example` is both the name of our *app* and the name of our *snap*, users can launch the app by simply running the command `kcalc-example`.
 
 If we used different names for the *app* and the *snap*, then the command would instead take the form `<app name>.<snap name>`. (For example, if we kept our snap's name as `kcalc-example`, but changed the app name to `calculator`, then the command to run our app would be `kcalc-example.calculator`.) The use of a prefix helps us to avoid conflicts with apps defined by other installed snaps. If you don't want your users to have to specify a prefix, you can apply for a command alias on the [Snapcraft forum](https://forum.snapcraft.io/t/455). Any aliases approved by the Snap Store's review team will be set up automatically when a user installs your snap from the Snap Store.
 
@@ -165,7 +165,7 @@ parts:
       - "-DKF5DocTools_FOUND=OFF"
 ```
 
-`source` tells Snapcraft where to find the source code for this part. Whilst we're linking to a tarball file hosted on a public website, Snapcraft is also able to use source code from a version control system or a local directory.
+`source` tells Snapcraft where to find the source code for this part. Whilst we're linking to a tarball file hosted on a public website, Snapcraft can also use source code from a version control system or a local directory.
 
 > ⓘ We're specifically using version 23.08.5 of KCalc released in February 2024 for this how-to. At the time of writing, this is the latest version that supports Qt 5.
 
@@ -180,7 +180,7 @@ The packages will be obtained from the Ubuntu *apt* repositories applicable to y
 
 We pass various build-modifying parameters to CMake using `cmake-parameters`. For example:
 - `"-DINSTALL_ICONS=ON"` embeds the KCalc icons within the snap, so that it correctly appears in the user's application launcher (and the Snap Store). If this parameter is omitted, then you may see a default icon instead.
-- `"-DKF5DocTools_FOUND=OFF"` disables the generation of documentation files for many KDE applications. This helps to speed up the build process and reduce the size of our snap. Users will still be able to access the documentation online via KCalc's *Help* menu.
+- `"-DKF5DocTools_FOUND=OFF"` disables the generation of documentation files for many KDE applications. This helps to speed up the build process and reduce the size of our snap. Users can still access the documentation online via KCalc's *Help* menu.
 
 ### Building the snap
 
@@ -192,7 +192,7 @@ git clone https://github.com/snapcraft-docs/kcalc-example
 
 The *snapcraft.yaml* file that we've discussed so far can be found in the *initial* directory.
 
-You can build the snap by simply executing `snapcraft` in that directory. The build should take about five to ten minutes to complete. Snapcraft will display various status messages in your terminal whilst the build is ongoing. If all goes well, you should see something like the following once the build is complete:
+You can build the snap by simply executing `snapcraft` in that directory. The build should take about 5 to 10 minutes to complete. Snapcraft will display various status messages in your terminal whilst the build is ongoing. If all goes well, you should see something like the following once the build is complete:
 
 ```bash
 $ snapcraft
@@ -200,7 +200,7 @@ Generated snap metadata
 Created snap package kcalc-example_23.08.5_amd64.snap
 ```
 
-> ⓘ We have only tested this example on an *amd64* system, but the `kde-neon` extension is also available for *arm64*. If you're able to build the snap on an *arm64* system, please let us know in our [Discourse thread](https://forum.snapcraft.com/t/qt5-and-kde-frameworks-applications/13753).
+> ⓘ We have only tested this example on an *amd64* system, but the `kde-neon` extension is also available for *arm64*. If you can successfully build the snap on an *arm64* system, please let us know in our [Discourse thread](https://forum.snapcraft.com/t/qt5-and-kde-frameworks-applications/13753).
 
 The resulting snap can be installed locally. You need to specify the `--devmode` flag here as we're installing an unconfined application:
 
@@ -240,7 +240,7 @@ You might notice a few peculiarities when testing our snap, for example:
 Let's try to improve the user experience by addressing them:
 
 [details=Error sounds]
-KCalc attempts to play a sound when an error occurs (for example, if a user tries to add multiple decimal places to a number). However, our version of KCalc isn't able to play these sounds.
+KCalc attempts to play a sound when an error occurs, for example if a user tries to add multiple decimal places to a number. We'll need to grant KCalc access to the correct audio interface, and make sure that it has access to the correct libraries and assets before these sounds can be played.
 
 To start with, we need to update *snapcraft.yaml* to grant our snap access to the `audio-playback` interface, as this isn't one of the interfaces covered by the `kde-neon` extension. To do this, we just need to add a `plugs` entry with the value `audio-playback` to the `kcalc-example` app definition. The result looks like this:
 
@@ -276,7 +276,7 @@ We're going to do this by adding a new part to *snapcraft.yaml* named `sound-sup
       fi
 ```
 
-This part does two things:
+This part performs two actions:
 - During the *pull* phase, it downloads a package containing the correct version of the *libcanberra-pulse* library for the architecture we're building for using *apt-get*.
 - During the *build* phase, it extracts that package to the part's installation folder using *dpkg*, causing the library to be bundled in our snap.
 
@@ -298,7 +298,7 @@ If you make these changes to *snapcraft.yaml*, and then re-build and reinstall t
 [details=Cursor themes]
 If you run our `kcalc-example` snap in a [*Wayland*-based](https://wayland.freedesktop.org) environment, KCalc might use a different set of cursors to the rest of your applications.
 
-This is because Qt 5 applications on Wayland expect to learn about the cursor theme and size from two environment variables: `XCURSOR_THEME` and `XCURSOR_SIZE`. However, not all desktop environments set these values, meaning that applications like KCalc aren't able to determine which cursor theme or size to use, so they fall back to default settings instead.
+This is because Qt 5 applications on Wayland expect to learn about the cursor theme and size from two environment variables: `XCURSOR_THEME` and `XCURSOR_SIZE`. However, not all desktop environments set these values, meaning that applications like KCalc can't determine which cursor theme or size to use, so they fall back to default settings instead.
 
 We can try to resolve this issue for users of the GNOME desktop environment on Wayland by inserting a few lines into the `kde-neon` *launcher script* that sets up the run time environment when our snap is launched. We'll do this with a new part named `set-cursor-variables`:
 
