@@ -2,24 +2,24 @@
 
 Here are just some of the many reasons why you should consider packaging and distributing your Qt 5 and KDE Frameworks applications as snaps:
 
+* **Snaps are easy to create**\
+  The process of creating a snap for a Qt 5 and/or KDE Frameworks application builds on standard tools like `cmake` and `make`, enabling you to re-use the application's existing build system when creating your snap.
 * **Snaps are easy to discover and install**\
-  Millions of users can find and install your snaps on desktop stores like Ubuntu's App Centre, on the online Snap Store or from the command line.
+  Millions of users can find and install your snaps in desktop stores like Ubuntu's App Centre, on the online Snap Store or from the command line.
 * **Snaps install and run the same across Linux**\
   You can rely on carefully curated extensions to provide the main libraries that your applications depend on, and then bundle the exact versions of any additional dependencies within the snap.
-* **Snaps run in a sandbox by default**\
-  Most snaps run in an isolated environment and only have access to resources like user files and networking via defined interfaces, enhancing security, system stability and user trust.
 * **You control the release schedule**\
   You decide when a new version of your application is released without having to wait for distributions to catch up.
 * **Snaps automatically update to the latest version**\
-  Your users' systems will check for new versions and upgrade in the background four times a day.
+  Users' systems will check for new versions and upgrade in the background four times a day.
 * **Upgrades are safe**\
   If your snap fails to upgrade, users automatically roll back to the previous revision.
-
-The process of creating a snap for a Qt 5 or KDE Frameworks application builds on standard tools like `cmake` and `make`, enabling you to re-use the application's existing build system when creating your snap.
+* **Snaps run in a sandbox by default**\
+  Most snaps run in an isolated environment and only have access to resources like user files and networking via defined interfaces, enhancing security, system stability and user trust.
 
 ### Build a snap in 20-30 minutes
 
-This guide should take around 20-30 minutes to follow. Once complete, you'll understand how to package Qt 5 and KDE Frameworks applications as snaps and deliver them to millions of Linux users. After making your snap available in the Snap Store, you'll get access to installation metrics and tools to directly manage the delivery of updates to Linux users.
+This guide should take around 20-30 minutes to follow and will result in a working Qt 5 and KDE Frameworks application in a snap. Once complete, you'll understand how to package Qt 5 and KDE Frameworks applications as snaps and deliver them to millions of Linux users. After making your snap available in the Snap Store, you'll get access to installation metrics and tools to directly manage the delivery of updates to Linux users.
 
 > ⓘ  For a brief overview of the snap creation process, including how to install Snapcraft and how it's used, see [Snapcraft overview](/t/snapcraft-overview/8940). For a more comprehensive breakdown of the steps involved, take a look at [Creating a snap](/t/creating-a-snap/6799).
 
