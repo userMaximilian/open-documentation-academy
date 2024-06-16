@@ -51,7 +51,7 @@ parts:
   kcalc:
     source: https://invent.kde.org/utilities/kcalc/-/archive/v23.08.5/kcalc-v23.08.5.tar.gz
     parse-info:
-      - org.kde.kcalc.appdata.xml
+      - usr/share/metainfo/org.kde.kcalc.appdata.xml
     build-packages:
       - libmpfr-dev
       - libgmp-dev
@@ -146,7 +146,7 @@ parts:
   kcalc:
     source: https://invent.kde.org/utilities/kcalc/-/archive/v23.08.5/kcalc-v23.08.5.tar.gz
     parse-info:
-      - org.kde.kcalc.appdata.xml
+      - usr/share/metainfo/org.kde.kcalc.appdata.xml
     build-packages:
       - libmpfr-dev
       - libgmp-dev
@@ -167,7 +167,7 @@ parts:
 
 > ⓘ We're using version 23.08.5 of KCalc released in February 2024 for this how-to. At the time of writing (June 2024) this is the latest - and possibly final - version to support Qt 5.
 
-We set `parse-info` to the location of the AppStream metadata file within the `source` tarball. This is the file that provides the information needed by `adopt-info` and `common-id` added earlier on.
+We set `parse-info` to the location of the AppStream metadata file as it will be installed in our snap. This file provides the information needed by `adopt-info` and `common-id` that we added earlier on.
 
 In addition to Qt 5 and the KDE Frameworks, KCalc depends on two libraries: MPFR and GMP. We use:
 - `build-packages` to ensure that the *development* versions of these libraries are during the build process, and
@@ -385,7 +385,7 @@ parts:
   kcalc:
     source: https://invent.kde.org/utilities/kcalc/-/archive/v23.08.5/kcalc-v23.08.5.tar.gz
     parse-info:
-      - org.kde.kcalc.appdata.xml
+      - usr/share/metainfo/org.kde.kcalc.appdata.xml
     build-packages:
       - libmpfr-dev
       - libgmp-dev
