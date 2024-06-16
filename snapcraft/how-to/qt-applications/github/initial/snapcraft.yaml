@@ -16,7 +16,7 @@ parts:
   kcalc:
     source: https://invent.kde.org/utilities/kcalc/-/archive/v23.08.5/kcalc-v23.08.5.tar.gz
     parse-info:
-      - usr/share/metainfo/org.kde.kcalc.appdata.xml
+      - org.kde.kcalc.appdata.xml
     build-packages:
       - libmpfr-dev
       - libgmp-dev
