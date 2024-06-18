@@ -15,6 +15,8 @@ apps:
   kcalc-example:
     common-id: org.kde.kcalc.desktop
     command: usr/bin/kcalc
+    command-chain:
+      - snap/command-chain/set-cursor-variables
     extensions:
       - kde-neon
     plugs:
@@ -52,18 +54,12 @@ parts:
       fi
 
   set-cursor-variables:
-    after:
-      - kde-neon/sdk
     source: https://github.com/snapcraft-docs/kcalc-example.git
     source-type: git
-    source-depth: 1
-    source-subdir: patches
+    source-subdir: scripts
     plugin: dump
-    override-prime: |
-      FILE=snap/command-chain/desktop-launch
-      if [ -e "$CRAFT_PRIME/$FILE" ]; then rm "$CRAFT_PRIME/$FILE"; fi
-      cp "$CRAFT_STAGE/$FILE" "$CRAFT_PRIME/$FILE"
-      patch -p0 < "$CRAFT_STAGE"/set-cursor-variables.patch
+    organize:
+      set-cursor-variables: snap/command-chain/set-cursor-variables
 
 layout:
   /usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libcanberra-0.30/libcanberra-pulse.so:
