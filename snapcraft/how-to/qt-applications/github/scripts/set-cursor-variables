@@ -26,4 +26,6 @@ if [ "$wayland_available" == true ]; then
   fi
 fi
 
+echo "$XCURSOR_THEME" > $SNAP_USER_DATA/xcursor_theme
+
 exec "$@"
