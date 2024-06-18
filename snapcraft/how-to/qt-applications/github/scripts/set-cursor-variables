@@ -13,6 +13,8 @@
 #    - does not provide XCURSOR_THEME or XCURSOR_SIZE
 #    - updates org.gnome.desktop.interface
 
+echo "hello from set-cursor-variables!"
+
 if [ "$wayland_available" == true ]; then
   DBUS_SERVICE="org.freedesktop.portal.Desktop"
   DBUS_OBJECT="/org/freedesktop/portal/desktop"
@@ -25,6 +27,9 @@ if [ "$wayland_available" == true ]; then
     export XCURSOR_SIZE="$(busctl call --user $DBUS_SERVICE $DBUS_OBJECT $DBUS_INTERFACE Read ss $DBUS_TARGET cursor-size | cut -d' ' -f4)"
   fi
 fi
+
+echo "XCURSOR_THEME=$XCURSOR_THEME"
+echo "XCURSOR_SIZE=$XCURSOR_SIZE"
 
 echo "$XCURSOR_THEME" > $SNAP_USER_DATA/xcursor_theme
 
