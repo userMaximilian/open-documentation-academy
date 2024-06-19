@@ -95,26 +95,40 @@ build-environment:
 -   SNAPCRAFT_CMAKE_ARGS: -DCMAKE_FIND_ROOT_PATH=/snap/kf5-5-113-qt-5-15-11-core22-sdk/current${SNAPCRAFT_CMAKE_ARGS:+:$SNAPCRAFT_CMAKE_ARGS}
 ```
 
-## Run time environment
+## The run time environment
 
-The following environment is set when your application is run:
-```yaml
-environment:
-  SNAP_DESKTOP_RUNTIME: $SNAP/kf5
-```
+The extension sets various environment variables when your application is launched.
 
-In addition, the extension adds a build part named `kde-neon/sdk` that assembles the following shell scripts into a single script named `desktop-launch`:
-- [desktop-exports](https://github.com/canonical/snapcraft/blob/main/extensions/desktop/common/desktop-exports)
-- [launcher-specific](https://github.com/canonical/snapcraft/blob/main/extensions/desktop/kde-neon/launcher-exec)
-- [mark-and-exec](https://github.com/canonical/snapcraft/blob/main/extensions/desktop/common/mark-and-exec)
-
-The extension then sets this script to run immediately prior to your application using a `command-chain` entry:
+Most of these variables are set by a `command-chain` shell script named `desktop-launch`:
 
 ```yaml
 apps:
   <each application>:
     command-chain:
     - snap/command-chain/desktop-launch
+```
+
+This shell script is added to the snap by a build part named `kde-neon/sdk`:
+
+```yaml
+  kde-neon/sdk:
+      source: /snap/snapcraft/current/share/snapcraft/extensions/desktop/kde-neon
+      plugin: make
+      make-parameters:
+      - PLATFORM_PLUG=kf5-5-113-qt-5-15-11-core22
+      build-snaps:
+      - kf5-5-113-qt-5-15-11-core22-sdk
+```
+
+This part assembles the `desktop-launch` script from the following source shell scripts:
+- [desktop-exports](https://github.com/canonical/snapcraft/blob/main/extensions/desktop/common/desktop-exports)
+- [launcher-specific](https://github.com/canonical/snapcraft/blob/main/extensions/desktop/kde-neon/launcher-exec)
+- [mark-and-exec](https://github.com/canonical/snapcraft/blob/main/extensions/desktop/common/mark-and-exec)
+
+In addition to running the `desktop-launch` script, the extension sets `$SNAP_DESKTOP_RUNTIME` using an `environment` parameter:
+```yaml
+environment:
+  SNAP_DESKTOP_RUNTIME: $SNAP/kf5
 ```
 
 ### Layout
