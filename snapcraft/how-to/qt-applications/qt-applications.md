@@ -1,18 +1,21 @@
 Snapcraft can be used to package and distribute Qt 5 and KDE Frameworks based applications in a way that enables convenient installation by users.
 
-The process of creating a snap for a Qt 5 and/or KDE Frameworks application builds on standard tools like `cmake` and `make`, enabling you to re-use the application's existing build system when creating your snap with only minimal tweaks.
+The process of creating a snap for a Qt 5 and/or KDE Frameworks application builds on standard tools like `cmake`, `make` and `qmake`, enabling you to re-use the application's existing build system when creating your snap.
 
-> ⓘ For a brief overview of the snap creation process, including how to install Snapcraft and how it's used, see [Snapcraft overview](/t/snapcraft-overview/8940). For a more comprehensive breakdown of the steps involved, take a look at [Creating a snap](/t/creating-a-snap/6799).
+[note] 
+
+For a brief overview of the snap creation process, including how to install Snapcraft and how it's used, see [Snapcraft overview](/t/snapcraft-overview/8940). For a more comprehensive breakdown of the steps involved, take a look at [Creating a snap](/t/creating-a-snap/6799).
+[/note]
 
 ## Creating a new Qt 5 based snap
 
 Snaps are defined in a single YAML file named *snapcraft.yaml* located in the root folder of your project. This YAML file describes the application, its dependencies and how it should be built.
 
-For this how-to, we will create a *snapcraft.yaml* file that can be used to build a snap of KDE's calculator application [KCalc](https://apps.kde.org/kcalc/). We will then discuss how we can improve the snap, before exploring how snaps can be submitted to the Snap Store.
+For this how-to, we will create and build a working snap of KDE's calculator application [KCalc](https://apps.kde.org/kcalc/). We'll also explore how to submit snaps to the Snap Store.
 
-The initial version of our *snapcraft.yaml* file can be found below. We'll explain the contents of this file in the following sections of this guide.
+We're going to start by creating a basic *snapcraft.yaml* file. We'll explain the contents of this file line-by-line in the following sections of this guide.
 
-[details=Click here to expand/collapse our initial *snapcraft.yaml*]
+[details=The first version of our *snapcraft.yaml* file]
 ```yaml
 name: kcalc-example
 adopt-info: kcalc
@@ -52,7 +55,7 @@ parts:
 
 ### Metadata
 
-The *snapcraft.yaml* file starts with a small amount of human-readable metadata. This data determines how the snap is presented in the Snap Store, so you should take care to ensure that it is complete and correct prior to submission. See [Snapcraft top-level metadata](/t/snapcraft-top-level-metadata/8334) for more information.
+The *snapcraft.yaml* file starts with a small amount of human-readable metadata. This data determines how the snap is presented in the Snap Store, so it should be as complete and correct as possible prior to submission. See [Snapcraft top-level metadata](/t/snapcraft-top-level-metadata/8334) for more information.
 
 ```yaml
 name: kcalc-example
@@ -60,12 +63,12 @@ adopt-info: kcalc
 grade: devel
 ```
 
-You should start by giving your snap a `name`. We've named our snap `kcalc-example`. Valid names consist of up to 40 lower-case ASCII letters, numbers and hyphens. Names must contain at least one letter, and they cannot start or end with a hyphen. If you want to publish your snap, you'll need to specify a `name` that hasn't already been taken in the Snap Store.
+A good place to start is by giving your snap a `name`. We've named our snap `kcalc-example`. Valid names consist of up to 40 lower-case ASCII letters, numbers and hyphens. Names must contain at least one letter, and they cannot start or end with a hyphen. If you want to publish your snap, you'll need to specify a `name` that hasn't already been taken in the Snap Store.
 
 You will also need to:
 1. include a short `summary` of what your snap does, a longer `description` and the `version` number of your snap; or
 2. use the `adopt-info` attribute to tell Snapcraft that this information will be defined later on during the build process (e.g. by a shell script, or in an [AppStream metadata file](/t/using-external-metadata/4642)).
-We're opting to use `adopt-info` for our example snap, as the KCalc source code includes a suitable AppStream file.
+We're opting to use `adopt-info` for our snap, as the developers of KCalc have bundled a suitable AppStream file with the application's source code which contains most of the metadata needed by Snapcraft.
 
 The `grade` is optional. It defines the quality of the snap. We're setting the `grade` as `devel` to tell Snapcraft that our snap is in development, and that it isn't yet suitable to be published to the `stable` or `candidate` release [channels](/t/channels/551) of the Snap Store.
 
@@ -157,13 +160,16 @@ parts:
 
 `source` tells Snapcraft where to find the source material for a part. For our KCalc snap we're using the URL of a tarball file hosted on a website, but Snapcraft can also pull from version control systems or use a local directory.
 
-> ⓘ We're using version 23.08.5 of KCalc released in February 2024 for this how-to. At the time of writing (June 2024) this is the latest (and possibly final) version to support Qt 5.
+[note]
+
+We're using version 23.08.5 of KCalc released in February 2024 for this how-to. At the time of writing (June 2024) this is the latest - and likely final - version to support Qt 5.
+[/note]
 
 If you're using an [AppStream metadata file](/t/using-external-metadata/4642#heading--appstream), then set `parse-info` to the location of that file in your snap. Snapcraft will parse this file and extract:
 1. global metadata for your snap, such as the `summary` and `description`, if *snapcraft.yaml* includes an `adopt-info` attribute that points to this part; and
 2. per app metadata, such as the location of the relevant desktop entry file, for each app that has a valid `common-id`
 
-In addition to Qt 5 and the KDE Frameworks, KCalc depends on two arithmetic/calculation libraries: MPFR and GMP. We use:
+In addition to Qt 5 and the KDE Frameworks, KCalc depends on two arithmetic/calculation libraries, MPFR and GMP. We use:
 - `build-packages` to ensure that the *development* versions of these libraries are during the build process; and
 - `stage-packages` to bundle the *run-time* versions within the snap
 The packages will be obtained from the [Ubuntu package archive](https://packages.ubuntu.com) applicable to the chosen `base` and/or from any additional repositories that you define in *snapcraft.yaml*. In our case, as we're using `core22` and not defining any additional repositories, the packages need to be available in *Ubuntu 22.04 LTS*. There is no need to list any of the Qt or KDE libraries, as the `kde-neon` extension makes them available separately.
@@ -182,7 +188,7 @@ You can download the repository for our `kcalc-example` snap by running the foll
 git clone https://github.com/snapcraft-docs/kcalc-example
 ```
 
-The *snapcraft.yaml* file that we've discussed so far can be found in the *initial* directory.
+The *snapcraft.yaml* file that we've discussed so far is located in the *initial* directory.
 
 You can build the snap by running `snapcraft` in that directory. The build process should take about 5 to 10 minutes to complete. Snapcraft will display various status messages in your terminal whilst the build is ongoing. If all goes well, you should eventually see something similar to the following:
 
@@ -192,7 +198,10 @@ Generated snap metadata
 Created snap package kcalc-example_23.08.5_amd64.snap
 ```
 
-> ⓘ Although we have only tested this example on an *amd64* system, the `kde-neon` extension is also available for *arm64*.
+[note]
+
+Although we have only tested this example on an *amd64* system, the `kde-neon` extension is also available for *arm64*.
+[/note]
 
 The resulting snap can be installed locally. You need to specify the `--devmode` option as to install an unconfined snap, like our KCalc example:
 
@@ -253,7 +262,7 @@ KCalc plays error sounds using KDE's *KNotification* Framework, which in turn re
 
 The easiest way to add a library to a snap is to add it to the `stage-packages` section of the main build part. Snapcraft will then fetch that library, as well as any other libraries or data that it depends on, at the start of the build.
 
-This behaviour is usually very helpful, but in our case it leads to unwanted duplication, as the dependencies of *libcanberra-pulse* are already bundled in the platform snap provided by the `kde-neon` extension. To avoid this, and keep the size of our snap as small as possible, we can use `override-pull` and `override-build` to make Snapcraft download and exact the minimum needed.
+In most cases this behaviour is really helpful, as it enables developers to specify just the main packages that they rely on in *snapcraft.yaml* and have Snapcraft fulfil the dependencies of those packages automatically. However, in our case it leads to unwanted duplication, as the dependencies of *libcanberra-pulse* are already bundled in the `kde-neon` extension platform snap. To avoid this, and keep the size of our snap as small as possible, we can use `override-pull` and `override-build` to make Snapcraft download and extract just the additional package.
 
 We're going to do this by adding a new part to *snapcraft.yaml* named `sound-support` as follows:
 
@@ -276,7 +285,7 @@ This part uses `override-pull` and `override-build` to define custom *pull* and 
 
 We set the `plugin` to `nil` as we don't need Snapcraft to take any actions other than simply copying the contents of the installation directory into the snap during the *stage* and *prime* steps.
 
-Finally, KCalc expects to find the library file (*libcanberra-pulse.so*) and the sound effect (*Oxygen-Sys-App-Message.ogg*) in particular locations in the `/usr` directory, rather than the actual locations of those files in our snap. We can add a `layout` section to our Snapcraft file to create links between the *expected* and *actual* locations as below. See [Snap layouts](/t/snap-layouts/7207) for more information. 
+Finally, KCalc expects to find the library file (*libcanberra-pulse.so*) and the sound effect (*Oxygen-Sys-App-Message.ogg*) in particular locations in the `/usr` directory, rather than the actual locations of those files in our snap. We can add a `layout` section to our Snapcraft file to create links between the *expected* and *actual* locations. See [Snap layouts](/t/snap-layouts/7207) for more information. 
 
 ```yaml
 layout:
@@ -292,7 +301,7 @@ If you make these changes to *snapcraft.yaml*, and then re-build and reinstall t
 [details=Cursor themes]
 If you run our `kcalc-example` snap under [Wayland](https://wayland.freedesktop.org), then you might encounter KCalc using different cursors to the rest of your applications.
 
-This is because Qt 5 applications on Wayland expect to learn about the cursor theme and size from two environment variables: `XCURSOR_THEME` and `XCURSOR_SIZE`. However, not all desktop environments set these values, in which case Qt 5 applications will fall back to a special set of default cursors.
+This is because Qt 5 applications on Wayland expect to learn about the cursor theme and size from two environment variables, `XCURSOR_THEME` and `XCURSOR_SIZE`. However, not all desktop environments set these values, in which case Qt 5 applications will fall back to a special set of default cursors.
 
 We can try to resolve this issue by adding a shell script to our snap that attempts to set the `XCURSOR_THEME` and `XCURSOR_SIZE` whenever the user launches our `kcalc-example` app.
 
@@ -327,7 +336,7 @@ apps:
 
 [note]
 
-The script isn't intended to solve this issue for every desktop environment or for every icon theme. As the snap cannot access the host system's cursor store, it relies on the user's chosen theme being contained in the `gtk-common-themes` content snap or the Qt/KDE Frameworks platform snap. If the user's chosen theme isn't present in any of these snaps, then the application will fall back to the default mentioned above.
+The confinement system prevents from accessing the host system's cursor store. This means that the user's chosen theme needs to exist in the `gtk-common-themes` content snap or in the Qt/KDE Frameworks platform snap, otherwise the application will fall back to the Qt 5 provided default.
 [/note]
 [/details]
 
@@ -360,11 +369,11 @@ source-code: https://github.com/snapcraft-docs/kcalc
 If you're confident that your *snapcraft.yaml* now refers to all the interfaces that it needs to function properly, you should update the `confinement` from `devmode` to `strict` and then carry out further rounds of testing.
 [/details]
 
-### Our updated snap
+### The updated snap
 
 Here's the updated *snapcraft.yaml* for our snap. If you cloned the *kcalc-example* repository from GitHub earlier on, you should find a copy in the *revised* folder of that repository.
 
-[details=Click here to expand our updated *snapcraft.yaml*]
+[details=The second/revised version of our *snapcraft.yaml* file]
 ```
 name: kcalc-example
 adopt-info: kcalc
@@ -449,7 +458,7 @@ Make sure the `snapcraft` command is authenticated using the email address attac
 $ snapcraft login
 ```
 
-### Reserve a name for your snap
+### Reserve a name for the snap
 
 You can publish your own version of a snap, provided you do so under a name that's appropriate. For example, if we wanted to publish our KCalc snap, we would need to pick a name that doesn't conflict or cause any confusion with the official [`kcalc` snap published by KDE](https://snapcraft.io/kcalc).
 
@@ -461,7 +470,7 @@ $ snapcraft register <snap name>
 
 Be sure to update the `name` of your snap - as well as the name of your (main) app - matches the newly registered name, before rebuilding the snap by running `snapcraft`.
 
-### Upload your snap
+### Upload the snap
 
 Use `snapcraft` to push the snap to the Snap Store. The following command would upload our `kcalc-example` snap to the *edge* release channel:
 
@@ -469,6 +478,6 @@ Use `snapcraft` to push the snap to the Snap Store. The following command would 
 $ snapcraft upload --release=edge kcalc-example_*.snap
 ```
 
-If you’re happy with the result, you should consider committing the *snapcraft.yaml* to a GitHub repository and [turn on automatic builds](https://build.snapcraft.io) so any further commits are built and released to the *edge* release channel automatically. Once you're happy with the quality of your snap, you may want to consider promoting it to a *beta*, *candidate* or *stable* release.
+If you’re happy with the result, you should consider committing the *snapcraft.yaml* to a GitHub repository and [turn on automatic builds](https://build.snapcraft.io) so any further commits are built and released to the *edge* release channel automatically. Once you're happy with the quality of your snap, you may want to consider promoting it to a *beta*, *candidate* or *stable* release. You can also use [progressive releases](/t/progressive-releases/20913) to roll out updates to users gradually rather than all at once, helping to limit the number of users who might experience issues if there's an issue with an update.
 
 Congratulations! You've just built and published your first Qt 5 snap. For a more in-depth overview of the snap building process, see [Creating a snap](/t/creating-a-snap/6799).
