@@ -1,5 +1,5 @@
 name: kcalc-example
-adopt-info: kcalc
+adopt-info: build-kcalc
 grade: devel
 
 license: GPL-2.0-or-later
@@ -23,7 +23,7 @@ apps:
       - audio-playback
 
 parts:
-  kcalc:
+  build-kcalc:
     source: https://invent.kde.org/utilities/kcalc/-/archive/v23.08.5/kcalc-v23.08.5.tar.gz
     parse-info:
       - usr/share/metainfo/org.kde.kcalc.appdata.xml
@@ -42,6 +42,14 @@ parts:
       - "-DINSTALL_ICONS=ON"
       - "-DKF5DocTools_FOUND=OFF"
 
+  set-cursor-variables:
+    source: https://github.com/snapcraft-docs/kcalc-example.git
+    source-type: git
+    source-subdir: scripts
+    plugin: dump
+    organize:
+      set-cursor-variables: snap/command-chain/set-cursor-variables
+
   sound-support:
     plugin: nil
     override-pull: |
@@ -52,14 +60,6 @@ parts:
       if [ ! -e $CRAFT_PART_INSTALL/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libcanberra-*/libcanberra-pulse.so ]; then
         dpkg -x $CRAFT_PART_SRC/libcanberra-pulse_*.deb $CRAFT_PART_INSTALL
       fi
-
-  set-cursor-variables:
-    source: https://github.com/snapcraft-docs/kcalc-example.git
-    source-type: git
-    source-subdir: scripts
-    plugin: dump
-    organize:
-      set-cursor-variables: snap/command-chain/set-cursor-variables
 
 layout:
   /usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libcanberra-0.30/libcanberra-pulse.so:

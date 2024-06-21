@@ -1,5 +1,5 @@
 name: kcalc-example
-adopt-info: kcalc
+adopt-info: kcalc-build-part
 grade: devel
 
 base: core22
@@ -13,7 +13,7 @@ apps:
       - kde-neon
 
 parts:
-  kcalc:
+  kcalc-build-part:
     source: https://invent.kde.org/utilities/kcalc/-/archive/v23.08.5/kcalc-v23.08.5.tar.gz
     parse-info:
       - usr/share/metainfo/org.kde.kcalc.appdata.xml

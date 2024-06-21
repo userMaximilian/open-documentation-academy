@@ -3,24 +3,24 @@
 Snapcraft extensions simplify and streamline the process of adding common elements to a snap, such as libraries and environment variables. See [Snapcraft extensions](/t/snapcraft-extensions/13486) for further details.
 [/note]
 
-The `kde-neon` extension helps developers to create snaps that use [Qt 5](https://doc.qt.io/qt-5/) and/or [the KDE Frameworks](https://kde.org/products/frameworks/).
+The `kde-neon` extension helps developers to create snaps that use [Qt 5](https://doc.qt.io/qt-5/) with (or without) the add-on [KDE Frameworks 5](https://kde.org/products/frameworks/) libraries.
 
-The extension is available for the `core22` base snap. Older versions of the extension are available for `core20` and `core18` base snaps, however these bases are no longer being actively supported (and `core18` itself [has been deprecated](/t/base-snaps/11198#heading--deprecated)). The remainder of this document focuses on the current version of the `core22` extension.
+The extension is maintained and supported for use with the `core22` base snap. Whilst older versions of the extension are still available for `core20` and `core18`, these bases are no longer actively supported.
 
-The currently supported version(s) of Qt 5 and the KDE Frameworks are:
+The remainder of this document focuses on the current version of the `core22` extension:
 
 | Base | Versions | Platform snap | Build snap |
-|-|---|---|---|
-| core22 | Qt 5.15.11 and KF 5.113 | [kf5-5-113-qt-5-15-11-core22](https://snapcraft.io/kf5-5-113-qt-5-15-11-core22) | [kf5-5-113-qt-5-15-11-core22-sdk](https://snapcraft.io/kf5-5-113-qt-5-15-11-core22-sdk) |
+|-|----|----|----|
+| core22 | Qt 5.15.11 and KDE Frameworks 5.113 | [kf5-5-113-qt-5-15-11-core22](https://snapcraft.io/kf5-5-113-qt-5-15-11-core22) | [kf5-5-113-qt-5-15-11-core22-sdk](https://snapcraft.io/kf5-5-113-qt-5-15-11-core22-sdk) |
 
 [note type="caution"]
 
-The extension is designed for C++-based Qt/KDE applications. It does not provide the bindings needed for *Qt for Python* (PySide2) or *PyQt* applications. In addition, the extension does not cover include every optional Qt library: for example, it does not include Qt3D, QtCharts, QtDataVisualization or QtGamepad.
+The extension is designed for C++-based Qt/KDE applications. It does not provide the bindings needed for *Qt for Python* (PySide2) or *PyQt* applications. In addition, the extension does not cover include every optional Qt library; for example, it does not include Qt3D, QtCharts, QtDataVisualization or QtGamepad.
 [/note]
 
 ## How to use it
 
-To use the extension, add an `extensions` keyword with the value `kde-neon` to each of the `apps` definitions in your `snapcraft.yaml` file. For example:
+To use the extension, add the `extensions` keyword with the value `kde-neon` to each app defined in your `snapcraft.yaml` file. For example:
 
 ```yaml
 apps:
@@ -31,7 +31,7 @@ apps:
     ...
 ```
 
-See [Qt 5 and KDE Frameworks applications](/t/qt5-and-kde-frameworks-applications/13753) for an example of how to use this extension to build a Qt 5 application.
+See [Qt 5 and KDE Frameworks applications](/t/qt5-and-kde-frameworks-applications/13753) for an example of how to use this extension to build a Qt 5 and KDE Frameworks 5 based application.
 
 ## Interface connections
 
@@ -78,15 +78,17 @@ See [Adding interfaces](/t/adding-interfaces/13123) for more details.
 
 ## Included packages
 
-The `kde-neon` extension depends on two separate snaps: a build snap and a platform snap.
+The `kde-neon` extension depends on two separate snaps: a build snap and a platform/content snap.
 
-The _build snap_ ensures that the relevant Qt 5 and KDE Frameworks development libraries (and supporting files) are available during the build process. These libraries are sourced from the Ubuntu-based *KDE neon* Linux distribution, which provides more much recent versions of Qt 5 and the KDE Frameworks than are available in the Ubuntu 22.04 LTS / `core22` software repositories.
+The _build snap_ ensures that the relevant Qt 5 and KDE Frameworks development libraries and supporting files are available during the build process. These libraries are sourced from the Ubuntu-based [*KDE neon* Linux distribution](https://neon.kde.org/), which provides more recent versions of Qt 5 and the KDE Frameworks than are available in the `core22` software archive.
 
-The _platform snap_ makes the corresponding run-time libraries available to your snap when it is launched by your users. The _platform snap_ will be downloaded automatically from the Snap Store when a user installs a snap that uses the `kde-neon` extension, if it isn't already present on the user's machine. By relying on a standalone _platform snap_, you don't need to bundle the Qt 5/KDE libraries in your snap, which keeps the file size of your snap to a minimum. The _platform snap_ can also be re-used by other snaps that use the `kde-neon` extension.
+The _platform snap_ makes the corresponding run-time libraries available to your snap when it is launched by your users. If the _platform snap_ isn't already present on a user's machine, then it will be installed automatically from the Snap Store automatically whenever that user tries to install a `kde-neon` extension based snap.
+
+By relying on a standalone _platform snap_, you can avoid bundling the Qt/KDE Frameworks libraries in your snap, keeping the size of your snap to a minimum. The same _platform snap_ can also be re-used by other snaps that use the `kde-neon` extension.
 
 ## The build environment
 
-In addition to ensuring that the _build snap_ is available during the snap creation process, the `kde-neon` extension defines the following `PATH`, `XDG_DATA_DIRS` and `SNAPCRAFT_CMAKE_ARGS` environment variables using a `build-environment` section in each of your snap's build parts. You can override these defaults or define other build-time environment variables on a part-by-part basis by adding your own `build-environment` section(s) to your *snapcraft.yaml*.
+In addition to making the _build snap_ available during the snap creation process, the `kde-neon` extension defines the `PATH`, `XDG_DATA_DIRS` and `SNAPCRAFT_CMAKE_ARGS` environment variables by adding a `build-environment` section in each of your snap's build parts:
 
 ```yaml
 build-environment:
@@ -95,9 +97,11 @@ build-environment:
 -   SNAPCRAFT_CMAKE_ARGS: -DCMAKE_FIND_ROOT_PATH=/snap/kf5-5-113-qt-5-15-11-core22-sdk/current${SNAPCRAFT_CMAKE_ARGS:+:$SNAPCRAFT_CMAKE_ARGS}
 ```
 
+You can override these defaults and/or define other build-time environment variables on a part-by-part basis by adding your own `build-environment` sections to *snapcraft.yaml*.
+
 ## The run time environment
 
-The extension sets various environment variables when your application is launched.
+The extension also sets various environment variables whenever your snapped applications are launched.
 
 Most of these variables are set by a `command-chain` shell script named `desktop-launch`:
 
@@ -111,6 +115,7 @@ apps:
 This shell script is added to the snap by a build part named `kde-neon/sdk`:
 
 ```yaml
+parts:
   kde-neon/sdk:
       source: /snap/snapcraft/current/share/snapcraft/extensions/desktop/kde-neon
       plugin: make
@@ -120,12 +125,13 @@ This shell script is added to the snap by a build part named `kde-neon/sdk`:
       - kf5-5-113-qt-5-15-11-core22-sdk
 ```
 
-This part assembles the `desktop-launch` script from the following source shell scripts:
+This part assembles the `desktop-launch` script from the following component scripts:
+- [init](https://github.com/canonical/snapcraft/blob/main/extensions/desktop/common/init)
 - [desktop-exports](https://github.com/canonical/snapcraft/blob/main/extensions/desktop/common/desktop-exports)
 - [launcher-specific](https://github.com/canonical/snapcraft/blob/main/extensions/desktop/kde-neon/launcher-exec)
 - [mark-and-exec](https://github.com/canonical/snapcraft/blob/main/extensions/desktop/common/mark-and-exec)
 
-In addition to running the `desktop-launch` script, the extension sets `$SNAP_DESKTOP_RUNTIME` using an `environment` parameter:
+In addition to running the `desktop-launch` script at run time, the extension sets `SNAP_DESKTOP_RUNTIME` using an `environment` parameter:
 ```yaml
 environment:
   SNAP_DESKTOP_RUNTIME: $SNAP/kf5
@@ -133,7 +139,7 @@ environment:
 
 ### Layout
 
-The extension also sets the following `layout`:
+The extension sets the following `layout`:
 
 ```yaml
 layout:
@@ -143,7 +149,7 @@ layout:
 
 ### Hooks
 
-The extension sets a [`configure` hook](/t/supported-snap-hooks/3795) to run a script named `hooks-configure-desktop` upon installation, every time the snap is refreshed, and whenever the user changes a configuration option using `snap set` or `snap unset`:
+The extension defines a [configure hook](/t/supported-snap-hooks/3795) that run a script named `hooks-configure-desktop` upon installation of the snap, every time the snap is refreshed, and whenever the user changes a configuration option using `snap set` or `snap unset`:
 
 ```yaml
 hooks:
@@ -154,4 +160,4 @@ hooks:
     - snap/command-chain/hooks-configure-desktop
 ```
 
-This is a copy of the following script: [`fonts`](https://github.com/canonical/snapcraft/blob/main/extensions/desktop/common/fonts)
+The `hooks-configure-desktop` script is a copy of [this `fonts` script](https://github.com/canonical/snapcraft/blob/main/extensions/desktop/common/fonts).
